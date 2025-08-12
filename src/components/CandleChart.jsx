@@ -9,6 +9,7 @@ import {
   CandlestickElement,
 } from "chartjs-chart-financial";
 import Papa from "papaparse";
+import { useTheme } from "../context/ThemeContext";
 
 Chart.register(CandlestickController, CandlestickElement);
 
@@ -44,10 +45,8 @@ function parseCSV(data) {
 }
 
 function parseDate(dt) {
-  // dt: "18-07-2025 09:15"
   const [date, time] = dt.trim().split(" ");
   const [day, month, year] = date.split("-");
-  // Ensure two-digit day and month
   const d = day.padStart(2, "0");
   const m = month.padStart(2, "0");
   return new Date(`${year}-${m}-${d}T${time}:00`);
@@ -58,6 +57,7 @@ export default function CandleChart({ timeFrame }) {
   const [loading, setLoading] = useState(true);
   const [candles, setCandles] = useState([]);
   const [error, setError] = useState("");
+  const { theme } = useTheme();
 
   useEffect(() => {
     setLoading(true);
@@ -66,13 +66,12 @@ export default function CandleChart({ timeFrame }) {
       download: true,
       header: true,
       skipEmptyLines: true,
-      delimiter: "", // Let PapaParse auto-detect
+      delimiter: "",
       complete: (results) => {
         if (results.errors.length) {
           setError("CSV Parse Error");
         } else {
           const parsed = parseCSV(results.data);
-          console.log("First 5 candles:", parsed.slice(0, 5));
           setCandles(parsed);
         }
         setLoading(false);
@@ -100,7 +99,7 @@ export default function CandleChart({ timeFrame }) {
             upColor: "#26a69a",
             downColor: "#ef5350",
             color: "#999",
-            barThickness: 4, // Proper candle width
+            barThickness: 4,
           },
         ],
       },
@@ -117,7 +116,7 @@ export default function CandleChart({ timeFrame }) {
             text: `NIFTY Candlestick Chart (${
               timeFrame === "1m" ? "1 Minute" : "1 Second"
             })`,
-            color: "#1976d2",
+            color: theme === "dark" ? "#fff" : "#1976d2",
             font: { size: 22 },
           },
           tooltip: {
@@ -143,29 +142,40 @@ export default function CandleChart({ timeFrame }) {
               unit: timeFrame === "1m" ? "minute" : "second",
               tooltipFormat: "MMM dd, yyyy HH:mm:ss",
             },
-            ticks: { color: "#555" },
-            grid: { color: "#eee" },
+            ticks: { color: theme === "dark" ? "#eee" : "#555" },
+            grid: { color: theme === "dark" ? "#333" : "#eee" },
           },
           y: {
-            ticks: { color: "#555" },
-            grid: { color: "#eee" },
+            ticks: { color: theme === "dark" ? "#eee" : "#555" },
+            grid: { color: theme === "dark" ? "#333" : "#eee" },
           },
         },
       },
     });
     return () => chartInstance.destroy();
-  }, [candles, timeFrame]);
+  }, [candles, timeFrame, theme]);
 
   return (
-    <div style={{ height: "500px", width: "100%" }}>
+    <div
+      style={{
+        height: "350px",
+        width: "1200px",
+        margin: "0 auto",
+        maxWidth: "100%",
+        background: "var(--chart-bg)", // Use theme variable
+        borderRadius: 12,
+        boxShadow: "0 2px 16px #0001",
+        transition: "background 0.3s",
+      }}
+    >
       <canvas
         ref={chartRef}
         style={{
-          background: "#fff",
+          background: "var(--chart-bg)", // Use theme variable
           borderRadius: 12,
-          boxShadow: "0 2px 16px #0001",
           width: "100%",
           height: "100%",
+          display: "block",
         }}
       />
       {loading && <div className="loading">Loading data...</div>}

@@ -1,0 +1,18 @@
+:root {
+  --bg: #f5f7fa;
+  --sidebar-bg: #e3eafc;
+  --header-bg: #1976d2;
+  --header-color: #fff;
+  --chart-bg: #fff;
+  --text: #222;
+  --accent: #1976d2;
+}
+[data-theme="dark"] {
+  --bg: #181c24;
+  --sidebar-bg: #232b39;
+  --header-bg: #232b39;
+  --header-color: #fff;
+  --chart-bg: #232b39;
+  --text: #eee;
+  --accent: #90caf9;
+}
